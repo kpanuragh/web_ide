@@ -97,7 +97,7 @@ return {
 	-- LSPConfig: Configure LSP servers
 	{
 		"neovim/nvim-lspconfig",
-		dependencies = { "williamboman/mason-lspconfig.nvim" },
+		dependencies = { "williamboman/mason-lspconfig.nvim","hrsh7th/cmp-nvim-lsp"},
 		config = function()
 			local lspconfig = require("lspconfig")
 
@@ -113,7 +113,7 @@ return {
 				map("n", "<leader>rn", vim.lsp.buf.rename, "Rename symbol")
 				map("n", "<leader>ca", vim.lsp.buf.code_action, "Code action")
 			end
-
+			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 			-- Lua
 			lspconfig.lua_ls.setup({
 				settings = {
@@ -124,11 +124,12 @@ return {
 					},
 				},
 				on_attach = on_attach,
+				capabilities = capabilities
 			})
 
 			-- Other language servers
-			lspconfig.rust_analyzer.setup({ on_attach = on_attach })
-			lspconfig.pyright.setup({ on_attach = on_attach })
+			lspconfig.rust_analyzer.setup({ on_attach = on_attach,capabilities = capabilities })
+			lspconfig.pyright.setup({ on_attach = on_attach,capabilities = capabilities })
 			lspconfig.intelephense.setup({
 				settings = {
 					intelephense = {
@@ -190,10 +191,11 @@ return {
 					},
 				},
 				on_attach = on_attach,
+				capabilities = capabilities
 			})
-			lspconfig.html.setup({ on_attach = on_attach })
-			lspconfig.ts_ls.setup({ on_attach = on_attach })
-			lspconfig.jsonls.setup({ on_attach = on_attach })
+			lspconfig.html.setup({ on_attach = on_attach,capabilities = capabilities })
+			lspconfig.ts_ls.setup({ on_attach = on_attach,capabilities = capabilities })
+			lspconfig.jsonls.setup({ on_attach = on_attach,capabilities = capabilities })
 			lspconfig.cssls.setup({
 				settings = {
 					css = {
@@ -201,6 +203,7 @@ return {
 					},
 				},
 				on_attach = on_attach,
+				capabilities = capabilities
 			})
 		end,
 	},
