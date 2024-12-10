@@ -1,13 +1,8 @@
 return {
 	{
-		"folke/tokyonight.nvim",
+		"shaunsingh/nord.nvim",
 		config = function()
-			require("tokyonight").setup({
-				style = "night",
-				transparent = false,
-				terminal_colors = true,
-			})
-			vim.cmd([[colorscheme tokyonight]])
+			vim.cmd([[colorscheme nord]])
 		end,
 	},
 	{
@@ -20,7 +15,7 @@ return {
 		"nvim-lualine/lualine.nvim",
 		dependencies = { "nvim-tree/nvim-web-devicons" },
 		config = function()
-			require("lualine").setup()
+			require("config.lualine")
 		end,
 	},
 	{
@@ -28,7 +23,17 @@ return {
 		version = "*",
 		dependencies = "nvim-tree/nvim-web-devicons",
 		config = function()
-			require("bufferline").setup({})
+			local highlights = require("nord").bufferline.highlights({
+				italic = true,
+				bold = true,
+			})
+
+			require("bufferline").setup({
+				options = {
+					separator_style = "thin",
+				},
+				highlights = highlights,
+			})
 		end,
 	},
 	{
@@ -37,25 +42,48 @@ return {
 		config = true,
 	},
 	{
-		"nvimdev/indentmini.nvim",
+		"lukas-reineke/indent-blankline.nvim",
 		config = function()
-			require("indentmini").setup({
-				char = "│", -- Character for indent guides, can also be '¦', '┆', or '┊'
-				exclude = {
-					"help",
-					"dashboard",
-					"lazy",
-					"mason",
-					"alpha",
-					"NvimTree",
-				}, -- Filetypes to exclude
-				options = {
-					use_treesitter = true, -- Use Tree-sitter for more accurate indentation
-					priority = 10, -- Priority for drawing
-				},
-				level = {
-					min = 2, -- Minimum indent level for guides
-				},
+			local highlight = {
+				"RainbowRed",
+				"RainbowYellow",
+				"RainbowBlue",
+				"RainbowOrange",
+				"RainbowGreen",
+				"RainbowViolet",
+				"RainbowCyan",
+			}
+
+			local hooks = require("ibl.hooks")
+			-- create the highlight groups in the highlight setup hook, so they are reset
+			-- every time the colorscheme changes
+			hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
+				vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
+				vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
+				vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#61AFEF" })
+				vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
+				vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#98C379" })
+				vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
+				vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
+			end)
+
+			require("ibl").setup({ indent = { highlight = highlight } })
+		end,
+	},
+	{
+		"rcarriga/nvim-notify",
+		config = function()
+			require("notify").setup({})
+		end,
+	},
+	{
+		"tpope/vim-surround",
+	},
+	{
+		"windwp/nvim-autopairs",
+		config = function()
+			require("nvim-autopairs").setup({
+				enable_check_bracket_line = false,
 			})
 		end,
 	},
