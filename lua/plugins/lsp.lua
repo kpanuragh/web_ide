@@ -265,19 +265,10 @@ return {
 		build = ":TSUpdate",
 		config = function()
 			require("nvim-treesitter.configs").setup({
-				ensure_installed = {
-					"lua",
-					"rust",
-					"python",
-					"php",
-					"html",
-					"css",
-					"javascript",
-					"typescript",
-					"json"
-				},
+				ensure_installed = "all",
 				highlight = { enable = true },
 				indent = { enable = true },
+				ignore_install = { 'hoon' }
 			})
 		end,
 	},
