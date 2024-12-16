@@ -43,7 +43,14 @@ return {
 			{ "<leader>fg", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
 			{ "<leader>fb", "<cmd>Telescope buffers<cr>", desc = "Find buffers" },
 			{ "<leader>fh", "<cmd>Telescope persisted<cr>", desc = "Session" },
-			{ "<leader>fp", "<cmd>Telescope projects<cr>", desc = "Projects" }, -- Added keybinding for Projects
+			{ "<leader>fp", "<cmd>Telescope projects<cr>", desc = "Projects" },
+			{ "<leader>gr", "<cmd>Telescope lsp_references<CR>", desc = "Find References" },
+			{ "<leader>gd", "<cmd>Telescope lsp_definitions<CR>", desc = "Go to Definition" },
+			{ "<leader>gi", "<cmd>Telescope lsp_implementations<CR>", desc = "Find Implementations" },
+			{ "<leader>gt", "<cmd>Telescope lsp_type_definitions<CR>", desc = "Find Type Definitions" },
+			{ "<leader>ld", "<cmd>Telescope diagnostics<CR>", desc = "Workspace Diagnostics" },
+			{ "<leader>ls", "<cmd>Telescope lsp_document_symbols<CR>", desc = "Document Symbols" },
+			{ "<leader>lw", "<cmd>Telescope lsp_workspace_symbols<CR>", desc = "Workspace Symbols" },
 		},
 		config = function()
 			-- Telescope setup
@@ -95,22 +102,22 @@ return {
 		ft = { "markdown" },
 	},
 	{
-  'nvim-orgmode/orgmode',
-  event = 'VeryLazy',
-  ft = { 'org' },
-  config = function()
-    -- Setup orgmode
-    require('orgmode').setup({
-      org_agenda_files = '~/orgfiles/**/*',
-      org_default_notes_file = '~/orgfiles/refile.org',
-    })
+		"nvim-orgmode/orgmode",
+		event = "VeryLazy",
+		ft = { "org" },
+		config = function()
+			-- Setup orgmode
+			require("orgmode").setup({
+				org_agenda_files = "~/orgfiles/**/*",
+				org_default_notes_file = "~/orgfiles/refile.org",
+			})
 
-    -- NOTE: If you are using nvim-treesitter with ~ensure_installed = "all"~ option
-    -- add ~org~ to ignore_install
-    -- require('nvim-treesitter.configs').setup({
-    --   ensure_installed = 'all',
-    --   ignore_install = { 'org' },
-    -- })
-  end,
-}
+			-- NOTE: If you are using nvim-treesitter with ~ensure_installed = "all"~ option
+			-- add ~org~ to ignore_install
+			-- require('nvim-treesitter.configs').setup({
+			--   ensure_installed = 'all',
+			--   ignore_install = { 'org' },
+			-- })
+		end,
+	},
 }

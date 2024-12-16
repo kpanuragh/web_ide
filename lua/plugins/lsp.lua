@@ -50,9 +50,20 @@ return {
 					css = { "prettier" },
 					php = { "php-cs-fixer" },
 					rust = { "rustfmt" },
+					blade = { "blade_formatter" },
 				},
 			})
 
+			-- -- Register blade-formatter
+			-- conform.formatters.blade_formatter = {
+			-- 	command = "blade-formatter", -- Path to the blade-formatter executable
+			-- 	args = {
+			-- 		"--stdin", -- Read input from stdin
+			-- 		"--indent-size",
+			-- 		"4", -- Optional: Set the indent size (default is 4 spaces)
+			-- 	},
+			-- 	stdin = true, -- blade-formatter reads input from stdin
+			-- }
 			-- Keymap for formatting
 			vim.keymap.set({ "n", "v" }, "<leader>cf", function()
 				conform.format({
@@ -97,7 +108,7 @@ return {
 	-- LSPConfig: Configure LSP servers
 	{
 		"neovim/nvim-lspconfig",
-		dependencies = { "williamboman/mason-lspconfig.nvim","hrsh7th/cmp-nvim-lsp"},
+		dependencies = { "williamboman/mason-lspconfig.nvim", "hrsh7th/cmp-nvim-lsp" },
 		config = function()
 			local lspconfig = require("lspconfig")
 
@@ -124,12 +135,12 @@ return {
 					},
 				},
 				on_attach = on_attach,
-				capabilities = capabilities
+				capabilities = capabilities,
 			})
 
 			-- Other language servers
-			lspconfig.rust_analyzer.setup({ on_attach = on_attach,capabilities = capabilities })
-			lspconfig.pyright.setup({ on_attach = on_attach,capabilities = capabilities })
+			lspconfig.rust_analyzer.setup({ on_attach = on_attach, capabilities = capabilities })
+			lspconfig.pyright.setup({ on_attach = on_attach, capabilities = capabilities })
 			lspconfig.intelephense.setup({
 				settings = {
 					intelephense = {
@@ -191,11 +202,11 @@ return {
 					},
 				},
 				on_attach = on_attach,
-				capabilities = capabilities
+				capabilities = capabilities,
 			})
-			lspconfig.html.setup({ on_attach = on_attach,capabilities = capabilities })
-			lspconfig.ts_ls.setup({ on_attach = on_attach,capabilities = capabilities })
-			lspconfig.jsonls.setup({ on_attach = on_attach,capabilities = capabilities })
+			lspconfig.html.setup({ on_attach = on_attach, capabilities = capabilities })
+			lspconfig.ts_ls.setup({ on_attach = on_attach, capabilities = capabilities })
+			lspconfig.jsonls.setup({ on_attach = on_attach, capabilities = capabilities })
 			lspconfig.cssls.setup({
 				settings = {
 					css = {
@@ -203,7 +214,7 @@ return {
 					},
 				},
 				on_attach = on_attach,
-				capabilities = capabilities
+				capabilities = capabilities,
 			})
 		end,
 	},
@@ -248,12 +259,12 @@ return {
 					["<CR>"] = cmp.mapping.confirm({ select = true }),
 				}),
 				sources = cmp.config.sources({
-				    -- Copilot Source
-    { name = "copilot", group_index = 2 },
-    -- Other Sources
-    { name = "nvim_lsp", group_index = 2 },
-    { name = "path", group_index = 2 },
-    { name = "luasnip", group_index = 2 },
+					-- Copilot Source
+					{ name = "copilot", group_index = 2 },
+					-- Other Sources
+					{ name = "nvim_lsp", group_index = 2 },
+					{ name = "path", group_index = 2 },
+					{ name = "luasnip", group_index = 2 },
 				}),
 			})
 		end,
@@ -268,30 +279,19 @@ return {
 				ensure_installed = "all",
 				highlight = { enable = true },
 				indent = { enable = true },
-				ignore_install = { 'hoon' }
+				ignore_install = { "hoon" },
 			})
-		end,
-	},
-
-	-- null-ls.nvim: Integrate external linters and formatters
-	{
-		"jose-elias-alvarez/null-ls.nvim",
-		dependencies = { "nvim-lua/plenary.nvim" },
-		config = function()
-			local null_ls = require("null-ls")
-			null_ls.setup({
-				sources = {
-					null_ls.builtins.diagnostics.eslint,
-					null_ls.builtins.diagnostics.flake8,
-					null_ls.builtins.diagnostics.phpstan,
-					null_ls.builtins.formatting.black,
-					null_ls.builtins.formatting.prettier,
-					null_ls.builtins.formatting.stylua,
+			local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+			parser_config.blade = {
+				install_info = {
+					url = "https://github.com/EmranMR/tree-sitter-blade",
+					files = { "src/parser.c" },
+					branch = "main",
 				},
-			})
+				filetype = "blade",
+			}
 		end,
 	},
-
 	-- folke/trouble.nvim: Better diagnostic UI
 	{
 		"folke/trouble.nvim",
