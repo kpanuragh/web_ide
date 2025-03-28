@@ -12,7 +12,7 @@ return {
 				"lua_ls",
 				"pyright",
 				"ts_ls",
-				"phpactor",
+				"intelephense",
 				"gopls",
 				"rust_analyzer",
 			},
@@ -76,7 +76,7 @@ return {
 			},
 			ts_ls = {},
 			pyright = {},
-			phpactor = {},
+			intelephense = {},
 			gopls = {},
 			rust_analyzer = {},
 		}

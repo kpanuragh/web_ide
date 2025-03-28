@@ -13,7 +13,7 @@ return {
         html = { "prettier" },
         css = { "prettier" },
         scss = { "prettier" },
-        php = { "php_cs_fixer" },
+        php = { "phpcs" },
         python = { "black" },
         go = { "gofmt" },
         rust = { "rustfmt" },
