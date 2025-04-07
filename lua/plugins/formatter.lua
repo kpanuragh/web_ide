@@ -1,4 +1,5 @@
 
+
 return {
   'stevearc/conform.nvim',
   event = { "BufWritePre" },
@@ -18,7 +19,20 @@ return {
         go = { "gofmt" },
         rust = { "rustfmt" },
         lua = { "stylua" },
+        blade = { "blade_formatter" }, -- 👈 add this line
       },
+
+      -- formatters = {
+      --   blade_formatter = {
+      --     command = "blade-formatter",
+      --     args = {
+      --       "--stdin",
+      --       "--filename",
+      --       "$FILENAME",
+      --     },
+      --     stdin = true,
+      --   },
+      -- },
 
       format_on_save = function(bufnr)
         -- Only format on save if there are actual changes
@@ -28,12 +42,11 @@ return {
           return {
             lsp_fallback = true,
             async = false,
-            -- We now format the full buffer (range removed)
           }
         end
         return nil
       end,
     })
-     end,
+  end,
 }
 
