@@ -12,9 +12,6 @@ return {
 			"nvim-telescope/telescope-fzf-native.nvim",
 			build = "make",
 			cond = vim.fn.executable("make") == 1,
-			config = function()
-				require("telescope").load_extension("fzf")
-			end,
 		},
 		{
 			"folke/todo-comments.nvim",
@@ -84,11 +81,32 @@ return {
 			buffers = {
 				previewer = false,
 			},
+			extensions = {
+				fzf = {
+					fuzzy = true, -- false will only do exact matching
+					override_generic_sorter = true, -- override the generic sorter
+					override_file_sorter = true, -- override the file sorter
+					case_mode = "smart_case", -- or "ignore_case" or "respect_case"
+				},
+				file_browser = {
+					theme = "ivy",
+					hijack_netrw = true,
+				},
+				project = {
+					base_dirs = {
+						"~/Projects",
+					},
+					theme = "dropdown",
+				},
+				dap = {
+					theme = "dropdown",
+				},
+			},
 		})
-		pcall(telescope.load_extension, "fzf")
-		pcall(telescope.load_extension, "file_browser")
-		pcall(telescope.load_extension, "project")
-		pcall(telescope.load_extension, "dap")
+		telescope.load_extension("fzf")
+		telescope.load_extension("file_browser")
+		telescope.load_extension("project")
+		telescope.load_extension("dap")
 	end,
 	keys = {
 		{ "<leader>ff", "<cmd>Telescope find_files<cr>", desc = "Find Files" },
@@ -100,6 +118,6 @@ return {
 		{ "<leader>fp", "<cmd>Telescope project<cr>", desc = "Projects" },
 		{ "<leader>fe", "<cmd>Telescope file_browser<cr>", desc = "File Browser" },
 		{ "<leader>fdp", "<cmd>Telescope dap commands<cr>", desc = "DAP Commands" },
-        { "<leader>ft", "<cmd>TodoTelescope<cr>", desc = "TODO Comments" },
+		{ "<leader>ft", "<cmd>TodoTelescope<cr>", desc = "TODO Comments" },
 	},
 }
