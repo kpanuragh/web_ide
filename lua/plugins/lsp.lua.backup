@@ -154,44 +154,177 @@ return {
 			end
 		end
 
-		-- Create basic PHP diagnostic commands (simplified for now)
-		vim.api.nvim_create_user_command("PhpLspCheck", function()
+		-- PHP LSP Diagnostic Functions
+		local php_diagnostics = {}
+		
+		-- Function to detect project structure and composer location
+		function php_diagnostics.detect_project_structure()
+			local cwd = vim.fn.getcwd()
+			local project_info = {
+				root = cwd,
+				composer_json = nil,
+				vendor_dir = nil,
+				src_dir = nil,
+			}
+			
+			-- Check for different project structures
+			local possible_structures = {
+				{ composer = "composer.json", vendor = "vendor", src = "" }, -- Root structure
+				{ composer = "src/composer.json", vendor = "src/vendor", src = "src" }, -- Src structure
+				{ composer = "app/composer.json", vendor = "app/vendor", src = "app" }, -- App structure
+			}
+			
+			for _, structure in ipairs(possible_structures) do
+				local composer_path = cwd .. "/" .. structure.composer
+				if vim.fn.filereadable(composer_path) == 1 then
+					project_info.composer_json = composer_path
+					project_info.vendor_dir = cwd .. "/" .. structure.vendor
+					project_info.src_dir = structure.src ~= "" and (cwd .. "/" .. structure.src) or cwd
+					break
+				end
+			end
+			
+			return project_info
+		end
+		
+		-- Function to check project structure
+		function php_diagnostics.check_project_structure()
+			local info = php_diagnostics.detect_project_structure()
+			print("Project Structure Analysis:")
+			print("  Root: " .. info.root)
+			print("  Composer: " .. (info.composer_json or "Not found"))
+			print("  Vendor: " .. (info.vendor_dir or "Not found"))
+			print("  Source: " .. (info.src_dir or "Not found"))
+			
+			if info.composer_json then
+				local autoloader = info.vendor_dir .. "/autoload.php"
+				if vim.fn.filereadable(autoloader) == 1 then
+					print("  Autoloader: ✓ Found")
+				else
+					print("  Autoloader: ✗ Missing (run composer install)")
+				end
+			end
+		end
+		
+		-- Function to help debug class resolution issues
+		function php_diagnostics.debug_class_resolution()
+			local current_file = vim.api.nvim_buf_get_name(0)
+			local info = php_diagnostics.detect_project_structure()
+			
+			print("Class Resolution Debug:")
+			print("  Current file: " .. current_file)
+			
+			-- Check if we're in a namespace
+			local lines = vim.api.nvim_buf_get_lines(0, 0, 50, false) -- Check first 50 lines
+			local namespace = nil
+			local use_statements = {}
+			
+			for _, line in ipairs(lines) do
+				local ns_match = line:match("^namespace%s+([^;]+)")
+				if ns_match then
+					namespace = ns_match
+				end
+				
+				local use_match = line:match("^use%s+([^;]+)")
+				if use_match then
+					table.insert(use_statements, use_match)
+				end
+			end
+			
+			print("  Current namespace: " .. (namespace or "Global"))
+			print("  Use statements:")
+			for _, use_stmt in ipairs(use_statements) do
+				print("    - " .. use_stmt)
+			end
+			
+			-- Suggest fixes
+			if info.composer_json then
+				print("  Suggestions:")
+				print("    1. Make sure 'composer install' was run in: " .. vim.fn.fnamemodify(info.composer_json, ":h"))
+				print("    2. Check if APP\\Tools class exists in your autoloader")
+				print("    3. Verify the namespace matches your composer.json PSR-4 configuration")
+			end
+		end
+		
+		-- Function to check PHP LSP status
+		function php_diagnostics.check_php_lsp()
 			local clients = vim.lsp.get_active_clients({ bufnr = 0 })
 			local php_clients = {}
+			
 			for _, client in ipairs(clients) do
 				if client.name == "intelephense" or client.name == "phpactor" then
 					table.insert(php_clients, client.name)
 				end
 			end
+			
 			if #php_clients == 0 then
 				vim.notify("No PHP LSP clients active", vim.log.levels.WARN)
-			else
-				vim.notify("Active PHP LSP clients: " .. table.concat(php_clients, ", "), vim.log.levels.INFO)
+				return
 			end
-		end, {})
+			
+			vim.notify("Active PHP LSP clients: " .. table.concat(php_clients, ", "), vim.log.levels.INFO)
+			
+			-- Check if file is PHP
+			local filetype = vim.bo.filetype
+			if filetype ~= "php" then
+				vim.notify("Current file is not PHP (filetype: " .. filetype .. ")", vim.log.levels.WARN)
+				return
+			end
+			
+			-- Display LSP capabilities
+			for _, client in ipairs(clients) do
+				if client.name == "intelephense" or client.name == "phpactor" then
+					local caps = client.server_capabilities
+					print("LSP: " .. client.name)
+					print("  - Definition: " .. (caps.definitionProvider and "✓" or "✗"))
+					print("  - References: " .. (caps.referencesProvider and "✓" or "✗"))
+					print("  - Hover: " .. (caps.hoverProvider and "✓" or "✗"))
+					print("  - Completion: " .. (caps.completionProvider and "✓" or "✗"))
+				end
+			end
+		end
 		
-		vim.api.nvim_create_user_command("PhpLspRestart", function()
+		-- Function to restart PHP LSPs
+		function php_diagnostics.restart_php_lsp()
 			local clients = vim.lsp.get_active_clients({ bufnr = 0 })
 			local restarted = {}
+			
 			for _, client in ipairs(clients) do
 				if client.name == "intelephense" or client.name == "phpactor" then
 					client.stop()
 					table.insert(restarted, client.name)
 				end
 			end
+			
 			if #restarted > 0 then
 				vim.notify("Restarted: " .. table.concat(restarted, ", "), vim.log.levels.INFO)
-				vim.defer_fn(function() vim.cmd("LspStart") end, 1000)
+				-- Wait a moment then restart
+				vim.defer_fn(function()
+					vim.cmd("LspStart")
+				end, 1000)
 			else
 				vim.notify("No PHP LSP clients to restart", vim.log.levels.WARN)
 			end
-		end, {})
+		end
 		
-		vim.api.nvim_create_user_command("PhpLspClearCache", function()
+		-- Function to clear LSP cache
+		function php_diagnostics.clear_php_cache()
+			-- Clear Intelephense cache
 			local intelephense_cache = vim.fn.stdpath("data") .. "/intelephense"
 			vim.fn.system("rm -rf " .. intelephense_cache)
-			vim.notify("Cleared PHP LSP cache", vim.log.levels.INFO)
-		end, {})
+			
+			-- Restart LSP
+			php_diagnostics.restart_php_lsp()
+			
+			vim.notify("Cleared PHP LSP cache and restarted servers", vim.log.levels.INFO)
+		end
+		
+		-- Create user commands
+		vim.api.nvim_create_user_command("PhpLspCheck", php_diagnostics.check_php_lsp, {})
+		vim.api.nvim_create_user_command("PhpLspRestart", php_diagnostics.restart_php_lsp, {})
+		vim.api.nvim_create_user_command("PhpLspClearCache", php_diagnostics.clear_php_cache, {})
+		vim.api.nvim_create_user_command("PhpProjectInfo", php_diagnostics.check_project_structure, {})
+		vim.api.nvim_create_user_command("PhpDebugClass", php_diagnostics.debug_class_resolution, {})
 		
 		-- Setup servers with explicit paths from Mason
 		local mason_bin = vim.fn.stdpath("data") .. "/mason/bin/"

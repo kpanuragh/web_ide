@@ -23,6 +23,22 @@ vim.opt.hlsearch = true          -- Highlight search matches
 vim.opt.updatetime = 300         -- Faster completion
 vim.opt.timeoutlen = 500         -- Keymap wait time
 
+-- Large project optimizations (without lazyredraw for Noice compatibility)
+vim.opt.synmaxcol = 200          -- Don't syntax highlight long lines
+vim.opt.ttyfast = true           -- Fast terminal connection
+-- Removed regexpengine = 1 as it conflicts with cmp-cmdline plugin
+
+-- Memory management for large files
+vim.g.loaded_matchparen = 1      -- Disable matchparen plugin for performance
+vim.g.loaded_matchit = 1         -- Disable matchit plugin
+
+-- LSP performance tuning
+vim.g.lsp_document_highlight = false  -- Disable document highlighting for performance
+
+-- Additional performance optimizations that don't conflict with plugins
+vim.opt.maxmempattern = 2000     -- Increase pattern memory for large files
+vim.opt.redrawtime = 10000       -- Increase redraw timeout for large files
+
 -- Files & Encoding
 vim.opt.encoding = "utf-8"
 vim.opt.fileencoding = "utf-8"
