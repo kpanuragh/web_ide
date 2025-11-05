@@ -25,7 +25,12 @@ A comprehensive, modern Neovim configuration optimized for full-stack web develo
 - HTML, CSS, SCSS, Tailwind CSS
 
 **Backend:**
-- PHP (Laravel with dedicated plugin)
+- **PHP** - Full support for Laravel, Symfony, CodeIgniter, WordPress, and custom frameworks
+  - Intelephense LSP for intelligent completion
+  - PHPActor for advanced refactoring
+  - Composer integration
+  - Namespace management
+  - Class import helpers
 - Python (Django support)
 - Go
 - Rust
@@ -139,6 +144,22 @@ The leader key is `<Space>`
 | `<leader>gc` | Git commits |
 | `<leader>gb` | Git branches |
 
+### PHP Development
+
+| Key | Action |
+|-----|--------|
+| `<leader>pc` | Run Composer commands |
+| `<leader>pa` | Run Artisan commands (Laravel) |
+| `<leader>pr` | View routes (Laravel/framework) |
+| `<leader>pm` | Navigate to related files (Model/Controller/View) |
+| `<leader>pn` | Insert use statement for class under cursor |
+| `<leader>pe` | Expand class name (FQCN) |
+| `<leader>ps` | Sort use statements alphabetically |
+| `<leader>pi` | Import class (PHPActor) |
+| `<leader>pf` | Find references (PHPActor) |
+| `<leader>pt` | Transform/Refactor code (PHPActor) |
+| `<leader>pg` | Generate getter/setter methods |
+
 ### GitHub Copilot
 
 | Key | Action |
@@ -189,6 +210,49 @@ DAP is pre-configured for:
 - Rust
 
 Just set breakpoints and press `<leader>dc` to start debugging!
+
+## 🐘 PHP Development Features
+
+This configuration is optimized for **all PHP projects**, not just Laravel! Whether you're working with Laravel, Symfony, CodeIgniter, WordPress, or a custom framework, you get:
+
+### Intelligent Code Completion
+- **Intelephense LSP** provides intelligent autocompletion, go-to-definition, and documentation
+- Works across all PHP frameworks and custom codebases
+- Understands PSR standards and modern PHP features
+
+### Advanced Refactoring with PHPActor
+- **Import classes automatically** - `<leader>pi`
+- **Generate getters/setters** - `<leader>pg`
+- **Transform and refactor code** - `<leader>pt`
+- **Find all references** - `<leader>pf`
+
+### Namespace Management
+- **Auto-insert use statements** - `<leader>pn` when cursor is on a class name
+- **Expand to fully qualified class name** - `<leader>pe`
+- **Sort use statements** - `<leader>ps`
+
+### Framework Support
+- **Laravel**: Artisan commands, route viewing, related file navigation
+- **Composer**: Integrated Composer command execution - `<leader>pc`
+- **All frameworks**: Works with any PSR-compliant codebase
+
+### PHP Debugging (Xdebug)
+1. Install Xdebug in your PHP environment
+2. Configure Xdebug to connect on port 9003:
+   ```ini
+   ; In php.ini or xdebug.ini
+   xdebug.mode=debug
+   xdebug.start_with_request=yes
+   xdebug.client_port=9003
+   ```
+3. Set breakpoints in Neovim and start debugging with `<leader>dc`
+
+### API Documentation
+Quick access to PHP documentation with DevDocs:
+- PHP core documentation
+- Laravel, Symfony, CodeIgniter
+- WordPress, PHPUnit
+- Press `<leader>do` to search documentation
 
 ## 🤖 GitHub Copilot Setup
 

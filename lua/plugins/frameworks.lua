@@ -3,7 +3,9 @@
 -- ============================================================================
 
 return {
-  -- Laravel/PHP specific
+  -- PHP Development Tools
+  -- Note: laravel.nvim works great for all PHP projects, not just Laravel!
+  -- It provides Composer commands, class navigation, and more
   {
     "adalessa/laravel.nvim",
     dependencies = {
@@ -13,15 +15,12 @@ return {
     },
     cmd = { "Sail", "Artisan", "Composer", "Npm", "Yarn", "Laravel" },
     keys = {
-      { "<leader>la", ":Laravel artisan<cr>", desc = "Laravel Artisan" },
-      { "<leader>lr", ":Laravel routes<cr>", desc = "Laravel Routes" },
-      { "<leader>lm", ":Laravel related<cr>", desc = "Laravel Related" },
+      { "<leader>pa", ":Laravel artisan<cr>", desc = "PHP Artisan (Laravel)" },
+      { "<leader>pc", ":Composer<cr>", desc = "PHP Composer" },
+      { "<leader>pr", ":Laravel routes<cr>", desc = "PHP Routes (Laravel)" },
+      { "<leader>pm", ":Laravel related<cr>", desc = "PHP Related Files" },
     },
-    ft = "php", -- Load for PHP files
-    cond = function()
-      -- Only load if artisan file exists (Laravel project)
-      return vim.fn.filereadable(vim.fn.getcwd() .. "/artisan") == 1
-    end,
+    ft = "php", -- Load for all PHP files
     config = function()
       require("laravel").setup({
         lsp_server = "intelephense",
@@ -30,6 +29,38 @@ return {
             enable = false,
           },
         },
+      })
+    end,
+  },
+
+  -- PHP Namespace helper - Auto-add namespace declarations
+  {
+    "arnaud-lb/vim-php-namespace",
+    ft = "php",
+    keys = {
+      { "<leader>pn", "<cmd>call PhpInsertUse()<cr>", desc = "PHP Insert Use Statement", mode = "n" },
+      { "<leader>pe", "<cmd>call PhpExpandClass()<cr>", desc = "PHP Expand Class", mode = "n" },
+      { "<leader>ps", "<cmd>call PhpSortUse()<cr>", desc = "PHP Sort Use Statements", mode = "n" },
+    },
+  },
+
+  -- PHP Refactoring tools
+  {
+    "phpactor/phpactor",
+    ft = "php",
+    build = "composer install --no-dev --optimize-autoloader",
+    keys = {
+      { "<leader>pi", "<cmd>PhpactorImportClass<cr>", desc = "PHP Import Class" },
+      { "<leader>pf", "<cmd>PhpactorFindReferences<cr>", desc = "PHP Find References" },
+      { "<leader>pt", "<cmd>PhpactorTransform<cr>", desc = "PHP Transform/Refactor" },
+      { "<leader>pg", "<cmd>PhpactorGenerateAccessor<cr>", desc = "PHP Generate Getter/Setter" },
+    },
+    config = function()
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "php",
+        callback = function()
+          vim.bo.omnifunc = "phpactor#Complete"
+        end,
       })
     end,
   },
@@ -181,6 +212,7 @@ return {
     },
     opts = {
       ensure_installed = {
+        -- Frontend
         "html",
         "css",
         "javascript",
@@ -189,10 +221,20 @@ return {
         "angular",
         "react",
         "node",
+
+        -- PHP & Frameworks
         "php",
         "laravel~10",
+        "symfony~6",
+        "codeigniter~4",
+        "wordpress",
+        "phpunit",
+
+        -- Python
         "python~3.12",
         "django~4.2",
+
+        -- Other Languages
         "go",
         "rust",
       },

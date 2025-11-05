@@ -328,6 +328,7 @@ return {
         { "<leader>f", group = "find" },
         { "<leader>g", group = "git" },
         { "<leader>l", group = "lsp" },
+        { "<leader>p", group = "php" },
         { "<leader>s", group = "split" },
         { "<leader>t", group = "tab" },
         { "<leader>u", group = "ui" },
