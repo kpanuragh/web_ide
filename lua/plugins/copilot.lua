@@ -6,8 +6,7 @@ return {
   -- GitHub Copilot
   {
     "zbirenbaum/copilot.lua",
-    cmd = "Copilot",
-    event = "InsertEnter",
+    event = "InsertEnter", -- Load when entering insert mode
     config = function()
       require("copilot").setup({
         panel = {

@@ -52,7 +52,8 @@ return {
   -- Session management
   {
     "rmagatti/auto-session",
-    lazy = false,
+    lazy = false, -- Keep false for auto-save to work properly
+    priority = 50, -- Load early but after options
     config = function()
       require("auto-session").setup({
         log_level = "error",

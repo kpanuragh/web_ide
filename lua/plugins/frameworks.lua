@@ -17,7 +17,11 @@ return {
       { "<leader>lr", ":Laravel routes<cr>", desc = "Laravel Routes" },
       { "<leader>lm", ":Laravel related<cr>", desc = "Laravel Related" },
     },
-    event = { "VeryLazy" },
+    ft = "php", -- Load for PHP files
+    cond = function()
+      -- Only load if artisan file exists (Laravel project)
+      return vim.fn.filereadable(vim.fn.getcwd() .. "/artisan") == 1
+    end,
     config = function()
       require("laravel").setup({
         lsp_server = "intelephense",

@@ -63,18 +63,5 @@ keymap.set("t", "<C-k>", "<C-\\><C-N><C-w>k", opts)
 keymap.set("t", "<C-l>", "<C-\\><C-N><C-w>l", opts)
 keymap.set("t", "<Esc>", "<C-\\><C-n>", opts)
 
--- LSP keymaps (will be overridden by LSP config)
-keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-keymap.set("n", "gr", vim.lsp.buf.references, opts)
-keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
-keymap.set("n", "K", vim.lsp.buf.hover, opts)
-keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
-keymap.set("n", "<leader>f", vim.lsp.buf.format, opts)
-
--- Diagnostic keymaps
-keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-keymap.set("n", "<leader>e", vim.diagnostic.open_float, opts)
-keymap.set("n", "<leader>dl", vim.diagnostic.setloclist, opts)
+-- Note: LSP and Diagnostic keymaps are set in lua/plugins/lsp.lua on_attach
+-- This avoids conflicts and ensures they only work when LSP is active
