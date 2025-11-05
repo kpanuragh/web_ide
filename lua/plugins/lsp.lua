@@ -31,28 +31,36 @@ return {
 
       -- LSP attach function with keymaps
       local on_attach = function(client, bufnr)
+        -- Notify that LSP attached (only in debug mode)
+        if vim.g.lsp_debug then
+          vim.notify(
+            string.format("LSP attached: %s", client.name),
+            vim.log.levels.INFO
+          )
+        end
+
         local opts = { noremap = true, silent = true, buffer = bufnr }
 
-        -- LSP keymaps
-        vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-        vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
-        vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, opts)
-        vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-        vim.keymap.set("n", "<leader>k", vim.lsp.buf.signature_help, opts) -- Changed from <C-k> to avoid window nav conflict
-        vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, opts) -- Signature help in insert mode
-        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, opts)
-        vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, opts)
+        -- LSP keymaps with descriptions
+        vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
+        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
+        vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Find references" }))
+        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
+        vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, vim.tbl_extend("force", opts, { desc = "Go to type definition" }))
+        vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
+        vim.keymap.set("n", "<leader>k", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "Signature help" }))
+        vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "Signature help" }))
+        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename symbol" }))
+        vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "Code action" }))
         vim.keymap.set("n", "<leader>f", function()
           vim.lsp.buf.format({ async = true })
-        end, opts)
+        end, vim.tbl_extend("force", opts, { desc = "Format buffer" }))
 
-        -- Diagnostic keymaps
-        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, opts)
-        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
-        vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, opts)
-        vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist, opts)
+        -- Diagnostic keymaps with descriptions
+        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
+        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
+        vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, vim.tbl_extend("force", opts, { desc = "Show diagnostic" }))
+        vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist, vim.tbl_extend("force", opts, { desc = "Diagnostic loclist" }))
 
         -- Highlight symbol under cursor (buffer-local autocmds, no group needed)
         if client.server_capabilities.documentHighlightProvider then
@@ -65,6 +73,9 @@ return {
             callback = vim.lsp.buf.clear_references,
           })
         end
+
+        -- Set buffer option to indicate LSP is attached
+        vim.bo[bufnr].omnifunc = "v:lua.vim.lsp.omnifunc"
       end
 
       -- Configure diagnostics
@@ -256,6 +267,83 @@ return {
             end
           end,
         },
+      })
+
+      -- ========================================================================
+      -- User Commands for LSP Troubleshooting
+      -- ========================================================================
+
+      -- Command to check LSP status
+      vim.api.nvim_create_user_command("LspStatus", function()
+        local buf = vim.api.nvim_get_current_buf()
+        local clients = vim.lsp.get_clients({ bufnr = buf })
+
+        if #clients == 0 then
+          vim.notify("No LSP client attached to this buffer", vim.log.levels.WARN)
+          vim.notify("Run :LspInfo for detailed information", vim.log.levels.INFO)
+        else
+          for _, client in ipairs(clients) do
+            vim.notify(string.format("✓ LSP Active: %s", client.name), vim.log.levels.INFO)
+          end
+        end
+      end, { desc = "Check LSP status for current buffer" })
+
+      -- Command to restart LSP
+      vim.api.nvim_create_user_command("LspRestart", function()
+        vim.lsp.stop_client(vim.lsp.get_clients())
+        vim.defer_fn(function()
+          vim.cmd("edit")
+        end, 500)
+        vim.notify("LSP restarted", vim.log.levels.INFO)
+      end, { desc = "Restart all LSP clients" })
+
+      -- Command to toggle LSP debug mode
+      vim.api.nvim_create_user_command("LspDebug", function()
+        vim.g.lsp_debug = not vim.g.lsp_debug
+        vim.lsp.set_log_level(vim.g.lsp_debug and "DEBUG" or "WARN")
+        vim.notify(
+          string.format("LSP debug mode: %s", vim.g.lsp_debug and "ON" or "OFF"),
+          vim.log.levels.INFO
+        )
+      end, { desc = "Toggle LSP debug mode" })
+
+      -- Command to check LSP keymaps
+      vim.api.nvim_create_user_command("LspKeymaps", function()
+        local buf = vim.api.nvim_get_current_buf()
+        local keymaps = vim.api.nvim_buf_get_keymap(buf, "n")
+
+        local lsp_maps = {}
+        for _, map in ipairs(keymaps) do
+          if map.lhs:match("^g[dDri]") or map.lhs == "K" or map.lhs:match("^%[d") or map.lhs:match("^%]d") then
+            table.insert(lsp_maps, string.format("%s -> %s", map.lhs, map.desc or "LSP command"))
+          end
+        end
+
+        if #lsp_maps == 0 then
+          vim.notify("No LSP keymaps found. LSP may not be attached.", vim.log.levels.WARN)
+        else
+          vim.notify("LSP Keymaps:\n" .. table.concat(lsp_maps, "\n"), vim.log.levels.INFO)
+        end
+      end, { desc = "Show LSP keymaps for current buffer" })
+
+      -- ========================================================================
+      -- Autocmd to ensure LSP attaches to PHP files
+      -- ========================================================================
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "php",
+        callback = function(args)
+          local buf = args.buf
+
+          -- Check if LSP is already attached
+          vim.defer_fn(function()
+            local clients = vim.lsp.get_clients({ bufnr = buf })
+            if #clients == 0 then
+              -- Try to start LSP manually
+              vim.cmd("LspStart intelephense")
+            end
+          end, 500)
+        end,
       })
     end,
   },

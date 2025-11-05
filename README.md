@@ -310,11 +310,15 @@ vim.opt.shiftwidth = 2
 
 ### Common Issues
 
-**LSP not working:**
+**LSP commands (gd, gr, K) not working:**
 ```vim
+:LspStatus         " Check if LSP is attached
 :LspInfo           " Check LSP status
+:LspKeymaps        " Show LSP keymaps
 :Mason             " Install missing servers
+:LspRestart        " Restart LSP if stuck
 ```
+See [LSP_TROUBLESHOOTING.md](LSP_TROUBLESHOOTING.md) for detailed solutions.
 
 **PHP syntax highlighting not working:**
 ```vim
@@ -373,7 +377,10 @@ This configuration has been optimized with:
 - ✅ Modern API usage (vim.uv)
 - ✅ Optimized lazy loading (-30% startup time)
 - ✅ Conditional plugin loading
-- ✅ Error handling for LSP setup
+- ✅ Enhanced LSP diagnostics and troubleshooting
+- ✅ Auto-attach for PHP files
+- ✅ PHP syntax highlighting for all frameworks
+- ✅ Comprehensive troubleshooting guides
 - ✅ Buffer-local autocmds (no memory leaks)
 - ✅ Updated to latest plugin versions
 
@@ -385,8 +392,11 @@ This configuration has been optimized with:
 :Mason
 
 " LSP
-:LspInfo
-:LspRestart
+:LspInfo           " Detailed LSP information
+:LspStatus         " Quick LSP status check
+:LspRestart        " Restart LSP clients
+:LspKeymaps        " Show LSP keybindings
+:LspDebug          " Toggle debug mode
 
 " Debugging
 :DapContinue
