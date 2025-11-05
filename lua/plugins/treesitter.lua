@@ -18,8 +18,8 @@ return {
           -- Web Development
           "html", "css", "scss", "javascript", "typescript", "tsx", "vue", "svelte",
 
-          -- Backend
-          "php", "python", "go", "rust",
+          -- Backend (PHP with both parsers for better highlighting)
+          "php", "php_only", "phpdoc", "python", "go", "rust",
 
           -- Config/Data
           "json", "yaml", "toml", "xml",
@@ -41,11 +41,20 @@ return {
 
         highlight = {
           enable = true,
-          additional_vim_regex_highlighting = { "php" },
+          -- Use both treesitter and traditional highlighting for PHP
+          -- This ensures syntax highlighting works even with complex PHP/HTML mixing
+          additional_vim_regex_highlighting = { "php", "html" },
+          disable = function(lang, buf)
+            -- Don't disable highlighting for any language
+            return false
+          end,
         },
 
         indent = {
           enable = true,
+          -- Disable treesitter indent for PHP to use built-in PHP indenting
+          -- which handles mixed HTML/PHP better
+          disable = { "php" },
         },
 
         -- Incremental selection

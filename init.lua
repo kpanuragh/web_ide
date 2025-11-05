@@ -24,6 +24,7 @@ vim.opt.rtp:prepend(lazypath)
 -- Load core configurations
 require("config.options")
 require("config.keymaps")
+require("config.filetype")  -- Load filetype detection for better PHP support
 
 -- Load plugins
 require("config.lazy")

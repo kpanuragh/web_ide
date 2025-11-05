@@ -254,6 +254,15 @@ Quick access to PHP documentation with DevDocs:
 - WordPress, PHPUnit
 - Press `<leader>do` to search documentation
 
+### Syntax Highlighting
+The configuration includes robust PHP syntax highlighting for:
+- Standard `.php` files
+- Mixed HTML/PHP files
+- Custom extensions (`.inc`, `.phtml`, `.phps`, etc.)
+- Template files in custom frameworks
+
+**Troubleshooting**: If syntax highlighting doesn't work, see [PHP_TROUBLESHOOTING.md](PHP_TROUBLESHOOTING.md) for solutions.
+
 ## 🤖 GitHub Copilot Setup
 
 1. Install Copilot:
@@ -306,6 +315,14 @@ vim.opt.shiftwidth = 2
 :LspInfo           " Check LSP status
 :Mason             " Install missing servers
 ```
+
+**PHP syntax highlighting not working:**
+```vim
+:TSInstall php php_only phpdoc
+:TSUpdate
+:edit              " Reload file
+```
+See [PHP_TROUBLESHOOTING.md](PHP_TROUBLESHOOTING.md) for detailed solutions.
 
 **Icons not showing:**
 - Make sure you're using a Nerd Font in your terminal
