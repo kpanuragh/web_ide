@@ -3,7 +3,8 @@
 -- ============================================================================
 
 return {
-  -- Colorscheme (Tokyo Night)
+  -- Multiple Beautiful Colorschemes
+  -- Tokyo Night
   {
     "folke/tokyonight.nvim",
     lazy = false,
@@ -16,18 +17,135 @@ return {
         styles = {
           comments = { italic = true },
           keywords = { italic = true },
-          functions = {},
+          functions = { bold = true },
           variables = {},
+          sidebars = "dark",
+          floats = "dark",
         },
-        sidebars = { "qf", "help", "terminal", "packer" },
+        sidebars = { "qf", "help", "terminal", "packer", "neo-tree" },
         day_brightness = 0.3,
         hide_inactive_statusline = false,
         dim_inactive = false,
-        lualine_bold = false,
+        lualine_bold = true,
+        on_colors = function(colors)
+          colors.hint = colors.orange
+          colors.error = "#ff0000"
+        end,
+        on_highlights = function(hl, c)
+          hl.CursorLineNr = {
+            fg = c.orange,
+            bold = true,
+          }
+        end,
       })
 
       vim.cmd([[colorscheme tokyonight]])
     end,
+  },
+
+  -- Catppuccin - Beautiful pastel theme
+  {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    lazy = true,
+    opts = {
+      flavour = "mocha", -- latte, frappe, macchiato, mocha
+      transparent_background = false,
+      show_end_of_buffer = false,
+      term_colors = true,
+      dim_inactive = {
+        enabled = true,
+        shade = "dark",
+        percentage = 0.15,
+      },
+      no_italic = false,
+      no_bold = false,
+      styles = {
+        comments = { "italic" },
+        conditionals = { "italic" },
+        loops = {},
+        functions = { "bold" },
+        keywords = {},
+        strings = {},
+        variables = {},
+        numbers = {},
+        booleans = {},
+        properties = {},
+        types = {},
+        operators = {},
+      },
+      color_overrides = {},
+      custom_highlights = {},
+      integrations = {
+        cmp = true,
+        gitsigns = true,
+        nvimtree = false,
+        treesitter = true,
+        notify = true,
+        mini = false,
+        telescope = {
+          enabled = true,
+        },
+        illuminate = {
+          enabled = true,
+          lsp = true,
+        },
+        mason = true,
+        neo_tree = true,
+        noice = true,
+        which_key = true,
+      },
+    },
+  },
+
+  -- Rose Pine - Elegant and minimal
+  {
+    "rose-pine/neovim",
+    name = "rose-pine",
+    lazy = true,
+    opts = {
+      variant = "moon", -- auto, main, moon, or dawn
+      dark_variant = "moon",
+      dim_inactive_windows = true,
+      extend_background_behind_borders = true,
+      enable = {
+        terminal = true,
+        legacy_highlights = true,
+        migrations = true,
+      },
+      styles = {
+        bold = true,
+        italic = true,
+        transparency = false,
+      },
+    },
+  },
+
+  -- Kanagawa - Deep and warm
+  {
+    "rebelot/kanagawa.nvim",
+    lazy = true,
+    opts = {
+      compile = false,
+      undercurl = true,
+      commentStyle = { italic = true },
+      functionStyle = { bold = true },
+      keywordStyle = { italic = true },
+      statementStyle = { bold = true },
+      typeStyle = {},
+      transparent = false,
+      dimInactive = true,
+      terminalColors = true,
+      colors = {
+        palette = {},
+        theme = { wave = {}, lotus = {}, dragon = {}, all = {} },
+      },
+      theme = "wave",
+      background = {
+        dark = "wave",
+        light = "lotus",
+      },
+    },
   },
 
   -- Statusline (Lualine)
@@ -258,7 +376,7 @@ return {
     end,
   },
 
-  -- Dashboard (start screen)
+  -- Dashboard (start screen) - Beautiful and Modern
   {
     "goolord/alpha-nvim",
     event = "VimEnter",
@@ -267,36 +385,77 @@ return {
       local alpha = require("alpha")
       local dashboard = require("alpha.themes.dashboard")
 
+      -- Beautiful ASCII art header
       dashboard.section.header.val = {
-        "                                                     ",
-        "  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗ ",
-        "  ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║ ",
-        "  ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║ ",
-        "  ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║ ",
-        "  ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║ ",
-        "  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝ ",
-        "                                                     ",
-        "           Full-Stack Web Development IDE            ",
+        "                                                                              ",
+        "                                                                              ",
+        "      ████ ██████           █████      ██                     ███████████     ",
+        "     ███████████             █████                             ████████████   ",
+        "     █████████ ███████████████████ ███   ███████████   ███████████████████   ",
+        "    █████████  ███    █████████████ █████ ██████████████   ███████████████   ",
+        "   █████████ ██████████ █████████ █████ █████ ████ █████   ███████████████   ",
+        " ███████████ ███    ███ █████████ █████ █████ ████ █████  ██████  ███ ████   ",
+        "██████  █████████████████████ ████ █████ █████ ████ ██████████████ ████ ████ ",
+        "                                                                              ",
+        "              [ Full-Stack Web Development IDE - PHP Edition ]               ",
+        "                                                                              ",
       }
 
+      -- Stylish buttons with better icons
       dashboard.section.buttons.val = {
-        dashboard.button("f", "  Find file", ":Telescope find_files <CR>"),
-        dashboard.button("n", "  New file", ":ene <BAR> startinsert <CR>"),
-        dashboard.button("r", "  Recent files", ":Telescope oldfiles <CR>"),
-        dashboard.button("g", "  Find text", ":Telescope live_grep <CR>"),
-        dashboard.button("p", "  Find project", ":Telescope projects <CR>"),
-        dashboard.button("c", "  Configuration", ":e $MYVIMRC <CR>"),
-        dashboard.button("s", "  Restore Session", ":SessionRestore<CR>"),
-        dashboard.button("q", "  Quit", ":qa<CR>"),
+        dashboard.button("f", " " .. " Find file", ":Telescope find_files <CR>"),
+        dashboard.button("n", " " .. " New file", ":ene <BAR> startinsert <CR>"),
+        dashboard.button("r", " " .. " Recent files", ":Telescope oldfiles <CR>"),
+        dashboard.button("g", " " .. " Find text", ":Telescope live_grep <CR>"),
+        dashboard.button("p", " " .. " Find project", ":Telescope projects <CR>"),
+        dashboard.button("s", " " .. " Restore Session", ":SessionRestore<CR>"),
+        dashboard.button("c", " " .. " Configuration", ":e $MYVIMRC <CR>"),
+        dashboard.button("l", "󰒲 " .. " Lazy", ":Lazy<CR>"),
+        dashboard.button("q", " " .. " Quit", ":qa<CR>"),
       }
 
-      dashboard.section.footer.val = "Happy Coding! 🚀"
+      -- Dynamic footer with stats
+      local function footer()
+        local total_plugins = #vim.tbl_keys(require("lazy").plugins())
+        local datetime = os.date("  %d-%m-%Y   %H:%M:%S")
+        local version = vim.version()
+        local nvim_version_info = "   v" .. version.major .. "." .. version.minor .. "." .. version.patch
 
-      dashboard.section.footer.opts.hl = "Type"
-      dashboard.section.header.opts.hl = "Include"
-      dashboard.section.buttons.opts.hl = "Keyword"
+        return datetime .. "   " .. total_plugins .. " plugins" .. nvim_version_info
+      end
+
+      dashboard.section.footer.val = footer()
+
+      -- Update footer dynamically
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "LazyVimStarted",
+        callback = function()
+          local stats = require("lazy").stats()
+          local ms = (math.floor(stats.startuptime * 100 + 0.5) / 100)
+          dashboard.section.footer.val = footer() .. "   ⚡ " .. ms .. "ms"
+          pcall(vim.cmd.AlphaRedraw)
+        end,
+      })
+
+      -- Highlight groups
+      dashboard.section.header.opts.hl = "AlphaHeader"
+      dashboard.section.buttons.opts.hl = "AlphaButtons"
+      dashboard.section.footer.opts.hl = "AlphaFooter"
 
       dashboard.opts.opts.noautocmd = true
+
+      -- Custom highlight groups with beautiful colors
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "AlphaReady",
+        callback = function()
+          vim.cmd([[
+            highlight AlphaHeader guifg=#7aa2f7
+            highlight AlphaButtons guifg=#7dcfff
+            highlight AlphaFooter guifg=#565f89 gui=italic
+          ]])
+        end,
+      })
+
       alpha.setup(dashboard.opts)
     end,
   },
