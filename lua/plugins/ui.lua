@@ -470,21 +470,31 @@ return {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
-    init = function()
+    keys = { "<leader>", '"', "'", "`", "c", "v", "g" },
+    config = function()
       vim.o.timeout = true
       vim.o.timeoutlen = 300
-    end,
-    opts = {
-      preset = "modern",
-      win = {
-        border = "rounded",
-      },
-      spec = {
+
+      local wk = require("which-key")
+      wk.setup({
+        preset = "modern",
+        win = {
+          border = "rounded",
+        },
+        triggers = {
+          { "<auto>", mode = "nixsotc" },
+          { "<leader>", mode = { "n", "v" } },
+        },
+      })
+
+      -- Register group names
+      wk.add({
         { "<leader>b", group = "buffer" },
         { "<leader>c", group = "copilot" },
         { "<leader>d", group = "debug" },
         { "<leader>f", group = "find" },
         { "<leader>g", group = "git" },
+        { "<leader>h", group = "git hunk" },
         { "<leader>l", group = "lsp" },
         { "<leader>m", group = "minimap" },
         { "<leader>p", group = "php" },
@@ -492,7 +502,7 @@ return {
         { "<leader>t", group = "tab" },
         { "<leader>u", group = "ui" },
         { "<leader>w", group = "workspace" },
-      },
-    },
+      })
+    end,
   },
 }
