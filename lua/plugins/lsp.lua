@@ -39,29 +39,40 @@ return {
           )
         end
 
-        -- Buffer-local keymaps - set them directly with explicit parameters
-        local opts = { noremap = true, silent = true, buffer = bufnr }
+        -- Helper function to safely set keymaps with error handling
+        local function safe_keymap(mode, lhs, rhs, desc)
+          local ok, err = pcall(vim.keymap.set, mode, lhs, rhs, {
+            noremap = true,
+            silent = true,
+            buffer = bufnr,
+            desc = desc,
+          })
+          if not ok and vim.g.lsp_debug then
+            vim.notify(string.format("Failed to set keymap %s: %s", lhs, err), vim.log.levels.WARN)
+          end
+        end
 
         -- LSP navigation keymaps - these override Vim's built-in gd, gr, etc.
-        vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "LSP: Go to definition" }))
-        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "LSP: Go to declaration" }))
-        vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "LSP: Find references" }))
-        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "LSP: Go to implementation" }))
-        vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, vim.tbl_extend("force", opts, { desc = "LSP: Go to type definition" }))
-        vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "LSP: Hover documentation" }))
-        vim.keymap.set("n", "<leader>k", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "LSP: Signature help" }))
-        vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "LSP: Signature help" }))
-        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "LSP: Rename symbol" }))
-        vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "LSP: Code action" }))
-        vim.keymap.set("n", "<leader>f", function()
+        safe_keymap("n", "gd", vim.lsp.buf.definition, "LSP: Go to definition")
+        safe_keymap("n", "gD", vim.lsp.buf.declaration, "LSP: Go to declaration")
+        safe_keymap("n", "gr", vim.lsp.buf.references, "LSP: Find references")
+        safe_keymap("n", "gi", vim.lsp.buf.implementation, "LSP: Go to implementation")
+        safe_keymap("n", "gt", vim.lsp.buf.type_definition, "LSP: Go to type definition")
+        safe_keymap("n", "K", vim.lsp.buf.hover, "LSP: Hover documentation")
+        safe_keymap("n", "<leader>k", vim.lsp.buf.signature_help, "LSP: Signature help")
+        safe_keymap("i", "<C-k>", vim.lsp.buf.signature_help, "LSP: Signature help")
+        safe_keymap("n", "<leader>rn", vim.lsp.buf.rename, "LSP: Rename symbol")
+        safe_keymap("n", "<leader>ca", vim.lsp.buf.code_action, "LSP: Code action")
+        safe_keymap("v", "<leader>ca", vim.lsp.buf.code_action, "LSP: Code action")
+        safe_keymap("n", "<leader>f", function()
           vim.lsp.buf.format({ async = true })
-        end, vim.tbl_extend("force", opts, { desc = "LSP: Format buffer" }))
+        end, "LSP: Format buffer")
 
         -- Diagnostic keymaps
-        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, vim.tbl_extend("force", opts, { desc = "LSP: Previous diagnostic" }))
-        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "LSP: Next diagnostic" }))
-        vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, vim.tbl_extend("force", opts, { desc = "LSP: Show diagnostic" }))
-        vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist, vim.tbl_extend("force", opts, { desc = "LSP: Diagnostic loclist" }))
+        safe_keymap("n", "[d", vim.diagnostic.goto_prev, "LSP: Previous diagnostic")
+        safe_keymap("n", "]d", vim.diagnostic.goto_next, "LSP: Next diagnostic")
+        safe_keymap("n", "<leader>e", vim.diagnostic.open_float, "LSP: Show diagnostic")
+        safe_keymap("n", "<leader>dl", vim.diagnostic.setloclist, "LSP: Diagnostic loclist")
 
         -- Notify keymaps set in debug mode
         if vim.g.lsp_debug then
