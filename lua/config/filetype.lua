@@ -25,10 +25,11 @@ vim.filetype.add({
     [".*"] = {
       priority = -math.huge,
       function(path, bufnr)
-        local content = vim.filetype.getlines(bufnr, 1)
-        if content and #content > 0 then
+        -- Safely get first line of buffer
+        local ok, content = pcall(vim.api.nvim_buf_get_lines, bufnr, 0, 1, false)
+        if ok and content and #content > 0 then
           local first_line = content[1]
-          -- Check for PHP opening tag
+          -- Check for PHP opening tag or shebang
           if first_line:match("^<%?php") or first_line:match("^#!/.*php") then
             return "php"
           end
