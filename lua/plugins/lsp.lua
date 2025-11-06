@@ -111,6 +111,20 @@ return {
 
         -- PHP/Laravel (Intelephense)
         intelephense = {
+          -- Define root directory patterns for PHP projects
+          -- This helps Intelephense find project root in custom PHP projects
+          root_dir = function(fname)
+            local lspconfig_util = require("lspconfig.util")
+            return lspconfig_util.root_pattern(
+              "composer.json",   -- Composer projects
+              ".git",            -- Git repositories
+              "index.php",       -- Custom PHP projects
+              "public/index.php",-- Framework-style projects
+              "src/",            -- PSR structure
+              "app/",            -- Laravel/framework structure
+              ".intelephense"    -- Explicit marker file
+            )(fname) or vim.fn.getcwd()
+          end,
           settings = {
             intelephense = {
               stubs = {
@@ -126,6 +140,22 @@ return {
               },
               files = {
                 maxSize = 5000000,
+                associations = { "*.php", "*.phtml", "*.inc", "*.module" },
+              },
+              environment = {
+                includePaths = {},  -- Add custom include paths if needed
+              },
+              completion = {
+                fullyQualifyGlobalConstantsAndFunctions = false,
+                triggerParameterHints = true,
+                insertUseDeclaration = true,
+                maxItems = 100,
+              },
+              format = {
+                enable = true,
+              },
+              diagnostics = {
+                enable = true,
               },
             },
           },
@@ -335,16 +365,63 @@ return {
         callback = function(args)
           local buf = args.buf
 
-          -- Check if LSP is already attached
+          -- Check if LSP is already attached after a delay
           vim.defer_fn(function()
+            -- Only proceed if buffer is still valid
+            if not vim.api.nvim_buf_is_valid(buf) then
+              return
+            end
+
             local clients = vim.lsp.get_clients({ bufnr = buf })
             if #clients == 0 then
               -- Try to start LSP manually
+              vim.notify("Auto-starting Intelephense for PHP file...", vim.log.levels.INFO)
               vim.cmd("LspStart intelephense")
+
+              -- Verify it attached after another delay
+              vim.defer_fn(function()
+                if not vim.api.nvim_buf_is_valid(buf) then
+                  return
+                end
+
+                local attached = vim.lsp.get_clients({ bufnr = buf })
+                if #attached == 0 then
+                  vim.notify(
+                    "Intelephense failed to attach. Try :LspInfo or :LspRestart",
+                    vim.log.levels.WARN
+                  )
+                else
+                  vim.notify("Intelephense attached successfully!", vim.log.levels.INFO)
+                end
+              end, 1000)
             end
           end, 500)
         end,
       })
+
+      -- ========================================================================
+      -- Additional command for PHP project setup
+      -- ========================================================================
+
+      vim.api.nvim_create_user_command("PhpProjectSetup", function()
+        local cwd = vim.fn.getcwd()
+        local marker_file = cwd .. "/.intelephense"
+
+        -- Create .intelephense marker file if it doesn't exist
+        if vim.fn.filereadable(marker_file) == 0 then
+          local file = io.open(marker_file, "w")
+          if file then
+            file:write("# Intelephense project marker\n")
+            file:write("# This file helps Intelephense identify the project root\n")
+            file:close()
+            vim.notify("Created .intelephense marker file", vim.log.levels.INFO)
+          end
+        end
+
+        -- Restart LSP
+        vim.cmd("LspRestart")
+        vim.notify("PHP project configured. LSP restarted.", vim.log.levels.INFO)
+      end, { desc = "Setup current directory as PHP project root" })
     end,
   },
 
