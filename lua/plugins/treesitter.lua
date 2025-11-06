@@ -6,11 +6,20 @@ return {
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
-    event = { "BufReadPost", "BufNewFile" },
+    event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
       "windwp/nvim-ts-autotag", -- Auto close/rename HTML tags
     },
+    init = function()
+      -- Enable treesitter highlighting before loading
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "*",
+        callback = function()
+          pcall(vim.treesitter.start)
+        end,
+      })
+    end,
     config = function()
       require("nvim-treesitter.configs").setup({
         -- Install parsers for these languages
@@ -45,7 +54,12 @@ return {
           -- This ensures syntax highlighting works even with complex PHP/HTML mixing
           additional_vim_regex_highlighting = { "php", "html" },
           disable = function(lang, buf)
-            -- Don't disable highlighting for any language
+            -- Disable for very large files (>500KB) to prevent performance issues
+            local max_filesize = 500 * 1024 -- 500 KB
+            local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
+            if ok and stats and stats.size > max_filesize then
+              return true
+            end
             return false
           end,
         },
@@ -109,6 +123,17 @@ return {
           enable = true,
         },
       })
+
+      -- Ensure syntax highlighting is enabled
+      vim.cmd([[
+        syntax enable
+        syntax on
+      ]])
+
+      -- Set foldmethod to use treesitter if available
+      vim.opt.foldmethod = "expr"
+      vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+      vim.opt.foldenable = false -- Start with folds open
     end,
   },
 }
