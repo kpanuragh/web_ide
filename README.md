@@ -75,25 +75,27 @@ See [INSTALLATION.md](INSTALLATION.md) for detailed manual installation instruct
 
 ```
 ~/.config/nvim/
-├── init.lua                  # Entry point
+├── init.lua                      # Entry point
 ├── lua/
 │   ├── config/
-│   │   ├── options.lua       # Neovim options
-│   │   ├── keymaps.lua       # General keybindings
-│   │   └── lazy.lua          # Plugin manager setup
+│   │   ├── options.lua           # Neovim options
+│   │   ├── keymaps.lua           # General keybindings
+│   │   ├── filetype.lua          # Filetype detection (PHP support)
+│   │   └── lazy.lua              # Plugin manager setup
 │   └── plugins/
-│       ├── completion.lua    # nvim-cmp configuration
-│       ├── copilot.lua       # GitHub Copilot
-│       ├── dap.lua           # Debug Adapter Protocol
-│       ├── extras.lua        # Utility plugins
-│       ├── formatting.lua    # Code formatting
-│       ├── frameworks.lua    # Framework-specific plugins
-│       ├── lsp.lua           # LSP configuration
-│       ├── neo-tree.lua      # File explorer
-│       ├── project.lua       # Project & session management
-│       ├── telescope.lua     # Fuzzy finder
-│       ├── treesitter.lua    # Syntax highlighting
-│       └── ui.lua            # UI plugins (theme, statusline, etc.)
+│       ├── completion.lua        # nvim-cmp configuration
+│       ├── copilot.lua           # GitHub Copilot
+│       ├── dap.lua               # Debug Adapter Protocol
+│       ├── extras.lua            # Utility plugins
+│       ├── formatting.lua        # Code formatting
+│       ├── frameworks.lua        # Framework-specific plugins
+│       ├── lsp.lua               # LSP configuration
+│       ├── neo-tree.lua          # File explorer
+│       ├── project.lua           # Project & session management
+│       ├── telescope.lua         # Fuzzy finder
+│       ├── treesitter.lua        # Syntax highlighting
+│       ├── ui.lua                # Themes, statusline, bufferline, dashboard
+│       └── ui-enhancements.lua   # Modern UI features & animations
 ```
 
 ## ⌨️ Keybindings
@@ -167,6 +169,17 @@ The leader key is `<Space>`
 | `<M-l>` | Accept suggestion |
 | `<M-]>` | Next suggestion |
 | `<leader>cc` | Toggle Copilot Chat |
+
+### UI & Visual Features
+
+| Key | Action |
+|-----|--------|
+| `<leader>mo` | Open minimap |
+| `<leader>mc` | Close minimap |
+| `<leader>mt` | Toggle minimap |
+| `<leader>un` | Dismiss all notifications |
+| `]]` | Next reference (illuminate) |
+| `[[` | Previous reference (illuminate) |
 
 For complete keybinding reference, see [KEYBINDINGS.md](KEYBINDINGS.md)
 
@@ -274,22 +287,168 @@ The configuration includes robust PHP syntax highlighting for:
 
 3. Start coding - suggestions appear automatically!
 
+## 🎨 Beautiful Modern UI
+
+This configuration includes a stunning, modern IDE interface with smooth animations and visual enhancements!
+
+### Available Themes
+
+Choose from 4 beautiful, professionally-designed colorschemes:
+
+1. **Tokyo Night** (Default) - Modern, vibrant dark theme
+   - Variants: `night`, `storm`, `moon`, `day`
+   - Active by default with custom highlights
+
+2. **Catppuccin** - Elegant pastel theme
+   - Flavors: `latte`, `frappe`, `macchiato`, `mocha`
+   - Beautiful color palette with full integration
+
+3. **Rose Pine** - Minimal and sophisticated
+   - Variants: `main`, `moon`, `dawn`
+   - Clean and distraction-free
+
+4. **Kanagawa** - Deep and warm colors
+   - Themes: `wave`, `dragon`, `lotus`
+   - Inspired by Japanese art
+
+### Switching Themes
+
+To switch themes, edit `lua/plugins/ui.lua` and change:
+
+```lua
+-- Change Tokyo Night to lazy load
+{
+  "folke/tokyonight.nvim",
+  lazy = true,  -- Change from false to true
+  -- ...
+}
+
+-- Make your preferred theme load immediately
+{
+  "catppuccin/nvim",
+  lazy = false,  -- Change from true to false
+  priority = 1000,
+  config = function()
+    require("catppuccin").setup()
+    vim.cmd([[colorscheme catppuccin]])
+  end,
+}
+```
+
+Or switch temporarily:
+```vim
+:colorscheme catppuccin
+:colorscheme rose-pine
+:colorscheme kanagawa
+:colorscheme tokyonight
+```
+
+### UI Enhancements Included
+
+#### Smooth Scrolling
+Beautiful smooth scrolling animations with `neoscroll.nvim`:
+- `<C-u>`, `<C-d>` - Smooth half-page scroll
+- `<C-f>`, `<C-b>` - Smooth full-page scroll
+- `zt`, `zz`, `zb` - Smooth cursor positioning
+
+#### Visual Enhancements
+- **Rainbow Delimiters** - Colorful bracket matching
+- **Indent Guides** - Clear indentation with scope highlighting
+- **Todo Comments** - Highlights TODO, FIXME, NOTE, HACK, WARN, PERF
+- **Color Preview** - Inline color visualization for CSS/hex codes
+- **Word Highlighting** - Highlights word under cursor (`]]` / `[[` to navigate)
+- **Dim Inactive Windows** - Focus on active window
+- **Better Folding** - Smart code folding with treesitter
+
+#### Minimap
+Toggle code minimap with:
+- `<leader>mo` - Open minimap
+- `<leader>mc` - Close minimap
+- `<leader>mt` - Toggle minimap
+
+#### Modern UI Components
+- **Noice.nvim** - Beautiful cmdline, messages, and notifications
+- **Dressing.nvim** - Enhanced vim.ui.select and vim.ui.input
+- **Window Picker** - Easy window navigation in multi-window layouts
+
+### Beautiful Dashboard
+
+The startup screen features:
+- Modern ASCII art logo
+- Quick action buttons (Find files, Recent files, Projects, etc.)
+- Dynamic footer showing:
+  - Current date and time
+  - Total plugins installed
+  - Neovim version
+  - Startup time in milliseconds
+
+### Statusline & Bufferline
+
+**Lualine** statusline shows:
+- Current mode
+- Git branch, diff, and diagnostics
+- File path
+- Active LSP clients
+- File encoding and type
+- Cursor position
+
+**Bufferline** features:
+- Tab-like buffer display
+- LSP diagnostics per buffer
+- Pin/unpin buffers: `<leader>bp`
+- Close other buffers: `<leader>bo`
+- Navigate buffers: `[b` / `]b`
+
 ## 🎨 Customization
 
-### Change Theme
+### Customize Theme Colors
 
-Edit `lua/plugins/ui.lua`:
+Edit `lua/plugins/ui.lua` to customize your active theme:
+
+**Tokyo Night:**
 ```lua
 require("tokyonight").setup({
   style = "night",  -- "storm", "moon", "day"
+  transparent = false,
+  terminal_colors = true,
+  styles = {
+    comments = { italic = true },
+    keywords = { italic = true },
+    functions = { bold = true },
+  },
 })
+```
+
+**Catppuccin:**
+```lua
+require("catppuccin").setup({
+  flavour = "mocha",  -- latte, frappe, macchiato, mocha
+  transparent_background = false,
+  dim_inactive = { enabled = true },
+})
+```
+
+### Customize Dashboard
+
+Edit the ASCII art, buttons, or footer in `lua/plugins/ui.lua`:
+
+```lua
+-- Change the header art
+dashboard.section.header.val = {
+  "Your custom ASCII art here",
+}
+
+-- Add custom buttons
+dashboard.section.buttons.val = {
+  dashboard.button("x", "  Your Action", ":YourCommand<CR>"),
+}
 ```
 
 ### Add Custom Keybindings
 
 Edit `lua/config/keymaps.lua`:
 ```lua
-vim.keymap.set("n", "<leader>xx", ":YourCommand<CR>", opts)
+vim.keymap.set("n", "<leader>xx", ":YourCommand<CR>", { desc = "Your action" })
 ```
 
 ### Project-Specific Settings
@@ -373,6 +532,11 @@ nvim  # Plugins will auto-update
 ## 🎯 Improvements (Latest)
 
 This configuration has been optimized with:
+- ✅ **Beautiful Modern UI** - Smooth animations, multiple themes, enhanced visual feedback
+- ✅ **4 Professional Colorschemes** - Tokyo Night, Catppuccin, Rose Pine, Kanagawa
+- ✅ **Enhanced Dashboard** - Dynamic stats, modern ASCII art, quick actions
+- ✅ **Visual Enhancements** - Rainbow brackets, smooth scrolling, color preview, minimap
+- ✅ **Modern UI Components** - Noice, Dressing, Window Picker, Tint
 - ✅ Fixed keymap conflicts
 - ✅ Modern API usage (vim.uv)
 - ✅ Optimized lazy loading (-30% startup time)
