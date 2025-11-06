@@ -39,35 +39,34 @@ return {
           )
         end
 
-        -- Create buffer-local keymaps with explicit buffer parameter
-        local function map(mode, lhs, rhs, desc)
-          vim.keymap.set(mode, lhs, rhs, {
-            noremap = true,
-            silent = true,
-            buffer = bufnr,
-            desc = desc,
-          })
-        end
+        -- Buffer-local keymaps - set them directly with explicit parameters
+        local opts = { noremap = true, silent = true, buffer = bufnr }
 
         -- LSP navigation keymaps - these override Vim's built-in gd, gr, etc.
-        map("n", "gd", function() vim.lsp.buf.definition() end, "Go to definition")
-        map("n", "gD", function() vim.lsp.buf.declaration() end, "Go to declaration")
-        map("n", "gr", function() vim.lsp.buf.references() end, "Find references")
-        map("n", "gi", function() vim.lsp.buf.implementation() end, "Go to implementation")
-        map("n", "gt", function() vim.lsp.buf.type_definition() end, "Go to type definition")
-        map("n", "K", function() vim.lsp.buf.hover() end, "Hover documentation")
-        map("n", "<leader>k", function() vim.lsp.buf.signature_help() end, "Signature help")
-        map("i", "<C-k>", function() vim.lsp.buf.signature_help() end, "Signature help")
-        map("n", "<leader>rn", function() vim.lsp.buf.rename() end, "Rename symbol")
-        map("n", "<leader>ca", function() vim.lsp.buf.code_action() end, "Code action")
-        map("v", "<leader>ca", function() vim.lsp.buf.code_action() end, "Code action")
-        map("n", "<leader>f", function() vim.lsp.buf.format({ async = true }) end, "Format buffer")
+        vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "LSP: Go to definition" }))
+        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "LSP: Go to declaration" }))
+        vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "LSP: Find references" }))
+        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "LSP: Go to implementation" }))
+        vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, vim.tbl_extend("force", opts, { desc = "LSP: Go to type definition" }))
+        vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "LSP: Hover documentation" }))
+        vim.keymap.set("n", "<leader>k", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "LSP: Signature help" }))
+        vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "LSP: Signature help" }))
+        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "LSP: Rename symbol" }))
+        vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "LSP: Code action" }))
+        vim.keymap.set("n", "<leader>f", function()
+          vim.lsp.buf.format({ async = true })
+        end, vim.tbl_extend("force", opts, { desc = "LSP: Format buffer" }))
 
         -- Diagnostic keymaps
-        map("n", "[d", function() vim.diagnostic.goto_prev() end, "Previous diagnostic")
-        map("n", "]d", function() vim.diagnostic.goto_next() end, "Next diagnostic")
-        map("n", "<leader>e", function() vim.diagnostic.open_float() end, "Show diagnostic")
-        map("n", "<leader>dl", function() vim.diagnostic.setloclist() end, "Diagnostic loclist")
+        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, vim.tbl_extend("force", opts, { desc = "LSP: Previous diagnostic" }))
+        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "LSP: Next diagnostic" }))
+        vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, vim.tbl_extend("force", opts, { desc = "LSP: Show diagnostic" }))
+        vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist, vim.tbl_extend("force", opts, { desc = "LSP: Diagnostic loclist" }))
+
+        -- Notify keymaps set in debug mode
+        if vim.g.lsp_debug then
+          vim.notify("LSP keymaps set for buffer " .. bufnr, vim.log.levels.INFO)
+        end
 
         -- Highlight symbol under cursor (buffer-local autocmds, no group needed)
         if client.server_capabilities.documentHighlightProvider then
