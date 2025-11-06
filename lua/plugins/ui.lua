@@ -478,7 +478,6 @@ return {
       preset = "modern",
       win = {
         border = "rounded",
-        position = "bottom",
       },
       spec = {
         { "<leader>b", group = "buffer" },
@@ -487,6 +486,7 @@ return {
         { "<leader>f", group = "find" },
         { "<leader>g", group = "git" },
         { "<leader>l", group = "lsp" },
+        { "<leader>m", group = "minimap" },
         { "<leader>p", group = "php" },
         { "<leader>s", group = "split" },
         { "<leader>t", group = "tab" },
