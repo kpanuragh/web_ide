@@ -39,28 +39,35 @@ return {
           )
         end
 
-        local opts = { noremap = true, silent = true, buffer = bufnr }
+        -- Create buffer-local keymaps with explicit buffer parameter
+        local function map(mode, lhs, rhs, desc)
+          vim.keymap.set(mode, lhs, rhs, {
+            noremap = true,
+            silent = true,
+            buffer = bufnr,
+            desc = desc,
+          })
+        end
 
-        -- LSP keymaps with descriptions
-        vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
-        vim.keymap.set("n", "gD", vim.lsp.buf.declaration, vim.tbl_extend("force", opts, { desc = "Go to declaration" }))
-        vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Find references" }))
-        vim.keymap.set("n", "gi", vim.lsp.buf.implementation, vim.tbl_extend("force", opts, { desc = "Go to implementation" }))
-        vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, vim.tbl_extend("force", opts, { desc = "Go to type definition" }))
-        vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Hover documentation" }))
-        vim.keymap.set("n", "<leader>k", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "Signature help" }))
-        vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, vim.tbl_extend("force", opts, { desc = "Signature help" }))
-        vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename symbol" }))
-        vim.keymap.set({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "Code action" }))
-        vim.keymap.set("n", "<leader>f", function()
-          vim.lsp.buf.format({ async = true })
-        end, vim.tbl_extend("force", opts, { desc = "Format buffer" }))
+        -- LSP navigation keymaps - these override Vim's built-in gd, gr, etc.
+        map("n", "gd", function() vim.lsp.buf.definition() end, "Go to definition")
+        map("n", "gD", function() vim.lsp.buf.declaration() end, "Go to declaration")
+        map("n", "gr", function() vim.lsp.buf.references() end, "Find references")
+        map("n", "gi", function() vim.lsp.buf.implementation() end, "Go to implementation")
+        map("n", "gt", function() vim.lsp.buf.type_definition() end, "Go to type definition")
+        map("n", "K", function() vim.lsp.buf.hover() end, "Hover documentation")
+        map("n", "<leader>k", function() vim.lsp.buf.signature_help() end, "Signature help")
+        map("i", "<C-k>", function() vim.lsp.buf.signature_help() end, "Signature help")
+        map("n", "<leader>rn", function() vim.lsp.buf.rename() end, "Rename symbol")
+        map("n", "<leader>ca", function() vim.lsp.buf.code_action() end, "Code action")
+        map("v", "<leader>ca", function() vim.lsp.buf.code_action() end, "Code action")
+        map("n", "<leader>f", function() vim.lsp.buf.format({ async = true }) end, "Format buffer")
 
-        -- Diagnostic keymaps with descriptions
-        vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, vim.tbl_extend("force", opts, { desc = "Previous diagnostic" }))
-        vim.keymap.set("n", "]d", vim.diagnostic.goto_next, vim.tbl_extend("force", opts, { desc = "Next diagnostic" }))
-        vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, vim.tbl_extend("force", opts, { desc = "Show diagnostic" }))
-        vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist, vim.tbl_extend("force", opts, { desc = "Diagnostic loclist" }))
+        -- Diagnostic keymaps
+        map("n", "[d", function() vim.diagnostic.goto_prev() end, "Previous diagnostic")
+        map("n", "]d", function() vim.diagnostic.goto_next() end, "Next diagnostic")
+        map("n", "<leader>e", function() vim.diagnostic.open_float() end, "Show diagnostic")
+        map("n", "<leader>dl", function() vim.diagnostic.setloclist() end, "Diagnostic loclist")
 
         -- Highlight symbol under cursor (buffer-local autocmds, no group needed)
         if client.server_capabilities.documentHighlightProvider then
@@ -342,18 +349,40 @@ return {
         local buf = vim.api.nvim_get_current_buf()
         local keymaps = vim.api.nvim_buf_get_keymap(buf, "n")
 
-        local lsp_maps = {}
-        for _, map in ipairs(keymaps) do
-          if map.lhs:match("^g[dDri]") or map.lhs == "K" or map.lhs:match("^%[d") or map.lhs:match("^%]d") then
-            table.insert(lsp_maps, string.format("%s -> %s", map.lhs, map.desc or "LSP command"))
+        -- Expected LSP keymaps
+        local expected_lsp_keys = {
+          "gd", "gD", "gr", "gi", "gt", "K",
+          "<leader>rn", "<leader>ca", "<leader>f",
+          "[d", "]d", "<leader>e"
+        }
+
+        local found_maps = {}
+        local missing_maps = {}
+
+        for _, key in ipairs(expected_lsp_keys) do
+          local found = false
+          for _, map in ipairs(keymaps) do
+            if map.lhs == key then
+              table.insert(found_maps, string.format("✓ %s -> %s", key, map.desc or "mapped"))
+              found = true
+              break
+            end
+          end
+          if not found then
+            table.insert(missing_maps, string.format("✗ %s -> not mapped", key))
           end
         end
 
-        if #lsp_maps == 0 then
-          vim.notify("No LSP keymaps found. LSP may not be attached.", vim.log.levels.WARN)
-        else
-          vim.notify("LSP Keymaps:\n" .. table.concat(lsp_maps, "\n"), vim.log.levels.INFO)
+        local output = "LSP Keymaps Status:\n\n"
+        if #found_maps > 0 then
+          output = output .. "Found:\n" .. table.concat(found_maps, "\n")
         end
+        if #missing_maps > 0 then
+          output = output .. "\n\nMissing:\n" .. table.concat(missing_maps, "\n")
+          output = output .. "\n\nLSP may not be attached. Try :LspStatus or :LspRestart"
+        end
+
+        vim.notify(output, vim.log.levels.INFO)
       end, { desc = "Show LSP keymaps for current buffer" })
 
       -- ========================================================================
